@@ -32,17 +32,20 @@ jobs:
           ${{ runner.os }}-nuget-
 
     - name: Restore dependencies
-      run: dotnet restore Aura/Aura.csproj -p:Platform=x64
+      run: dotnet restore Aura/Aura.csproj -p:Platform=x64 -r win-x64
 
     - name: Build
-      run: msbuild Aura/Aura.csproj /p:Configuration=Release /p:Platform=x64 /p:RestorePackages=false /m
-
-    - name: Publish
-      run: dotnet publish Aura/Aura.csproj -c Release -r win-x64 --no-build -o ./publish
+      run: |
+        msbuild Aura/Aura.csproj `
+          /p:Configuration=Release `
+          /p:Platform=x64 `
+          /p:RuntimeIdentifier=win-x64 `
+          /p:RestorePackages=false `
+          /m
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: Aura-win-x64
-        path: ./publish/
+        path: Aura/bin/x64/Release/
         retention-days: 30
