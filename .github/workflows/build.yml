@@ -19,9 +19,12 @@ jobs:
       with:
         dotnet-version: '8.0.x'
 
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
     - name: Restore dependencies
-      run: dotnet restore Aura/Aura.csproj -p:Platform=x64
+      run: msbuild Aura/Aura.csproj -t:restore -p:Platform=x64
 
     - name: Build Aura
-      run: dotnet build Aura/Aura.csproj --configuration Release --no-restore -p:Platform=x64 -v:detailed
+      run: msbuild Aura/Aura.csproj /p:Configuration=Release /p:Platform=x64 /v:detailed
 
