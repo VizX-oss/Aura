@@ -22,4 +22,3 @@ namespace Aura.Utils.Logger
         void Log(LogLevel level, string format, params object[] args);
     }
 }
-

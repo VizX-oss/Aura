@@ -1,9 +1,9 @@
 ﻿using Aura.Models;
+using Aura.Properties;
 using Aura.Utils;
 using Aura.Utils.Handlers;
 using Aura.Utils.Logger;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,7 +11,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Security.Principal;
-using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Documents;
 
 namespace Aura.Windows
 {
@@ -27,54 +28,52 @@ namespace Aura.Windows
         {
             InitializeComponent();
 
-            // Center window and set size
-            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
-            var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
-            var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
-            if (appWindow != null)
-            {
-                var displayArea = Microsoft.UI.Windowing.DisplayArea.GetFromWindowId(windowId, Microsoft.UI.Windowing.DisplayAreaFallback.Primary);
-                if (displayArea != null)
-                {
-                    var centricArea = displayArea.WorkArea;
-                    var size = new Windows.Graphics.SizeInt32(380, 580);
-                    appWindow.Resize(size);
-                    var position = new Windows.Graphics.PointInt32(
-                        (centricArea.Width - size.Width) / 2,
-                        (centricArea.Height - size.Height) / 2
-                    );
-                    appWindow.Move(position);
-                }
-            }
-
-            // Check if administrator
-            bool isElevated;
-            using (WindowsIdentity identity = WindowsIdentity.GetCurrent())
-            {
-                WindowsPrincipal principal = new WindowsPrincipal(identity);
-                isElevated = principal.IsInRole(WindowsBuiltInRole.Administrator);
-            }
-
-            if (!isElevated)
-            {
-                AdminInfoBar.IsOpen = true;
-                ContentPanel.IsEnabled = false;
-            }
-
-            // Bind change type combobox items
-            ChangeTypeComboBox.ItemsSource = SettingsModel.ChangeTypeValues;
-
             _autoFileSaver.Model.ShouldChangeProperty += SettingsModel_ShouldChangeProperty;
             _autoFileSaver.Model.PropertyChanged += SettingsModel_PropertyChanged;
             _autoUpdater.Model.PropertyChanged += UpdateModel_PropertyChanged;
 
-            ContentPanel.DataContext = _autoFileSaver.Model;
+            DataContext = _autoFileSaver.Model;
 
             _ = _autoUpdater.CheckForUpdates(false);
         }
 
         private bool SettingsModel_ShouldChangeProperty(object sender, PropertyChangedEventArgs e)
         {
+            List<string> properties = new List<string>() { "Enabled", "LightThemeTime", "DarkThemeTime" };
+
+            if (!properties.Contains(e.PropertyName))
+            {
+                return true;
+            }
+
+            using (WindowsIdentity identity = WindowsIdentity.GetCurrent())
+            {
+                WindowsPrincipal principal = new WindowsPrincipal(identity);
+                bool isElevated = principal.IsInRole(WindowsBuiltInRole.Administrator);
+
+                if (!isElevated)
+                {
+                    if (new MessageWindow(this, "Run as administrator", "You need to run the program as administrator in order to make changes to the Task Scheduler.", "Run as administrator", "Close").ShowDialog() == true)
+                    {
+                        try
+                        {
+                            Process process = new Process();
+                            process.StartInfo.FileName = Assembly.GetExecutingAssembly().Location;
+                            process.StartInfo.Verb = "runas";
+                            process.Start();
+
+                            Environment.Exit(0);
+                        }
+                        catch
+                        {
+                            //
+                        }
+                    }
+
+                    return false;
+                }
+            }
+
             return true;
         }
 
@@ -86,7 +85,7 @@ namespace Aura.Windows
 
             if (properties.Contains(e.PropertyName))
             {
-                ContentPanel.IsEnabled = false;
+                Content.IsEnabled = false;
 
                 try
                 {
@@ -99,84 +98,74 @@ namespace Aura.Windows
                         TaskSchedulerHandler.UpdateAllTasks(model.LightThemeTime, model.DarkThemeTime);
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
-                    Logger.Error("Task scheduler error: " + ex.Message);
-                    ShowErrorMessage();
+                    new MessageWindow(this, "An error occurred", "There was an error while writing to TaskScheduler. Please check logs for more info.", null, "Close").ShowDialog();
                 }
                 finally
                 {
-                    ContentPanel.IsEnabled = true;
+                    Content.IsEnabled = true;
                 }
             }
         }
 
-        private async void ShowErrorMessage()
-        {
-            var dialog = new ContentDialog
-            {
-                Title = "An error occurred",
-                Content = "There was an error while writing to TaskScheduler. Please check logs for more info.",
-                CloseButtonText = "Close",
-                XamlRoot = this.Content.XamlRoot
-            };
-            await dialog.ShowAsync();
-        }
-
-        private async void UpdateModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void UpdateModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             UpdateModel model = (UpdateModel)sender;
 
             if (e.PropertyName == "Status" && model.Status == UpdateStatus.NewUpdate)
             {
-                var dialog = new UpdateDialog(_autoUpdater)
+                WindowCollection windows = Application.Current.Windows;
+
+                for (int i = 0; i < windows.Count; i++)
                 {
-                    XamlRoot = this.Content.XamlRoot
-                };
-                await dialog.ShowAsync();
+                    if (windows[i] is UpdateWindow)
+                    {
+                        return;
+                    }
+                }
+
+                UpdateWindow window = new UpdateWindow(_autoUpdater) { Owner = this };
+                window.ShowDialog();
             }
         }
 
-        private async void BrowseThemeHyperlink_Click(object sender, RoutedEventArgs e)
+        private void BrowseThemeHyperlink_Click(object sender, RoutedEventArgs e)
         {
-            HyperlinkButton hyperlink = (HyperlinkButton)sender;
+            Hyperlink hyperlink = (Hyperlink)sender;
 
-            var picker = new Windows.Storage.Pickers.FileOpenPicker();
-            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+            OpenFileDialog dialog = new OpenFileDialog();
 
-            picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.List;
-            picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.ComputerFolder;
-            picker.FileTypeFilter.Add(".theme");
+            string localAppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string initialPath = Path.Combine(localAppDataPath, @"Microsoft\Windows\Themes");
 
-            var file = await picker.PickSingleFileAsync();
-            if (file != null)
+            dialog.Filter = "Theme files|*.theme";
+            dialog.Title = "Select a theme";
+            dialog.InitialDirectory = initialPath;
+
+            if (dialog.ShowDialog() == true)
             {
                 PropertyInfo propertyInfo = _autoFileSaver.Model.GetType().GetProperty((string)hyperlink.Tag);
-                propertyInfo.SetValue(_autoFileSaver.Model, file.Path, null);
+                propertyInfo.SetValue(_autoFileSaver.Model, dialog.FileName, null);
             }
         }
 
-        private async void BrowseWallpaperHyperlink_Click(object sender, RoutedEventArgs e)
+        private void BrowseWallpaperHyperlink_Click(object sender, RoutedEventArgs e)
         {
-            HyperlinkButton hyperlink = (HyperlinkButton)sender;
+            Hyperlink hyperlink = (Hyperlink)sender;
 
-            var picker = new Windows.Storage.Pickers.FileOpenPicker();
-            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+            OpenFileDialog dialog = new OpenFileDialog();
 
-            picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail;
-            picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.PicturesLibrary;
-            picker.FileTypeFilter.Add(".jpg");
-            picker.FileTypeFilter.Add(".jpeg");
-            picker.FileTypeFilter.Add(".png");
-            picker.FileTypeFilter.Add("*");
+            string initialPath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
 
-            var file = await picker.PickSingleFileAsync();
-            if (file != null)
+            dialog.Filter = "Image files|*.jpg;*.jpeg;*.png|All files|*.*";
+            dialog.Title = "Select a wallpaper";
+            dialog.InitialDirectory = initialPath;
+
+            if (dialog.ShowDialog() == true)
             {
                 PropertyInfo propertyInfo = _autoFileSaver.Model.GetType().GetProperty((string)hyperlink.Tag);
-                propertyInfo.SetValue(_autoFileSaver.Model, file.Path, null);
+                propertyInfo.SetValue(_autoFileSaver.Model, dialog.FileName, null);
             }
         }
 
@@ -192,30 +181,10 @@ namespace Aura.Windows
             handler.SwitchToDarkTheme();
         }
 
-        private async void WindowHeader_OnClickAbout(object sender, RoutedEventArgs e)
+        private void WindowHeader_OnClickAbout(object sender, RoutedEventArgs e)
         {
-            var dialog = new AboutDialog(_autoUpdater)
-            {
-                XamlRoot = this.Content.XamlRoot
-            };
-            await dialog.ShowAsync();
-        }
-
-        private void RunAsAdmin_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                Process process = new Process();
-                process.StartInfo.FileName = Environment.ProcessPath;
-                process.StartInfo.Verb = "runas";
-                process.Start();
-                Environment.Exit(0);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error("Failed to elevate: " + ex.Message);
-            }
+            Window window = new AboutWindow(_autoUpdater) { Owner = this };
+            window.ShowDialog();
         }
     }
 }
-

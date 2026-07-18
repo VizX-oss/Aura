@@ -10,4 +10,3 @@ namespace Aura.Utils.Logger
         }
     }
 }
-

@@ -23,4 +23,3 @@ namespace Aura.Utils.Logger
         }
     }
 }
-

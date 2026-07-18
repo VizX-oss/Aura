@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -133,7 +134,7 @@ namespace Aura.Utils
 
             try
             {
-                jsonDownloader.DownloadProgressChanged += Client_DownloadProgressChanged;
+                jsonDownloader.Client.DownloadProgressChanged += Client_DownloadProgressChanged;
 
                 Model.DownloadPath = await jsonDownloader.GetTempFile(Model.DownloadUrl, Model.DownloadName);
 
@@ -156,11 +157,11 @@ namespace Aura.Utils
             {
                 Logger.Info("Download update finished");
 
-                jsonDownloader.DownloadProgressChanged -= Client_DownloadProgressChanged;
+                jsonDownloader.Client.DownloadProgressChanged -= Client_DownloadProgressChanged;
             }
         }
 
-        private void Client_DownloadProgressChanged(object sender, DownloadProgressEventArgs e)
+        private void Client_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
             Logger.Debug("Downloading update... {0}%...", e.ProgressPercentage.ToString());
 
@@ -202,4 +203,3 @@ namespace Aura.Utils
         }
     }
 }
-

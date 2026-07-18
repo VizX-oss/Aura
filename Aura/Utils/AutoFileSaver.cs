@@ -39,7 +39,7 @@ namespace Aura.Utils
 
         public AutoFileSaver(string fileName, bool readOnly = false)
         {
-            string root = AppDomain.CurrentDomain.BaseDirectory;
+            string root = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             Path = System.IO.Path.Combine(root, fileName);
 
             ReadOnly = readOnly;
@@ -107,4 +107,3 @@ namespace Aura.Utils
         }
     }
 }
-

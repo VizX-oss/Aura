@@ -1,41 +1,36 @@
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Data;
-using System;
+﻿using System;
 using System.Globalization;
-using Aura.Models;
+using System.Windows;
+using System.Windows.Data;
 
 namespace Aura.Utils
 {
-    public class BooleanToVisibilityConverter : IValueConverter
+    public class GreaterThanOrEqualToBoolean : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, string language)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool b)
+            if (value is IComparable a && parameter is IComparable b)
             {
-                return b ? Visibility.Visible : Visibility.Collapsed;
+                return a.CompareTo(b) >= 0;
             }
+
             return Visibility.Collapsed;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is Visibility v)
-            {
-                return v == Visibility.Visible;
-            }
-            return false;
+            throw new NotImplementedException();
         }
     }
 
     public class ObjectComparatorToVisbility : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, string language)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value == null || parameter == null) return Visibility.Collapsed;
-            return value.ToString() == parameter.ToString() ? Visibility.Visible : Visibility.Collapsed;
+            return value.Equals(parameter) ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
@@ -43,7 +38,7 @@ namespace Aura.Utils
 
     public class ObjectEmptyToVisbility : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, string language)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is string valueAsString)
             {
@@ -53,67 +48,9 @@ namespace Aura.Utils
             return value != null ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public class DateTimeToTimeSpanConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, string language)
-        {
-            if (value is DateTime dt)
-            {
-                return dt.TimeOfDay;
-            }
-            return TimeSpan.Zero;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
-            if (value is TimeSpan ts)
-            {
-                return DateTime.Today.Add(ts);
-            }
-            return DateTime.MinValue;
-        }
-    }
-
-    public class UpdateStatusToVisibilityConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, string language)
-        {
-            if (value is UpdateStatus status && parameter is string targetStatusStr)
-            {
-                if (Enum.TryParse<UpdateStatus>(targetStatusStr, out var targetStatus))
-                {
-                    return status == targetStatus ? Visibility.Visible : Visibility.Collapsed;
-                }
-            }
-            return Visibility.Collapsed;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public class StringFormatConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, string language)
-        {
-            if (value == null) return string.Empty;
-            string format = parameter as string;
-            if (string.IsNullOrEmpty(format)) return value.ToString();
-            return string.Format(format, value);
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
     }
 }
-

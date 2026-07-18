@@ -75,4 +75,3 @@ namespace Aura.Utils.Logger
         }
     }
 }
-

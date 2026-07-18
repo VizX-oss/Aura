@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -38,7 +38,7 @@ namespace Aura.Utils.Logger
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error while writing log to file: {0}", ex.Message);
+                Console.WriteLine("Error while writing log to file: {1}", ex.Message);
             }
             finally
             {
@@ -47,4 +47,3 @@ namespace Aura.Utils.Logger
         }
     }
 }
-

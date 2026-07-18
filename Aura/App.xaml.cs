@@ -1,94 +1,101 @@
-﻿using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using System;
-using Aura.Windows;
+﻿using Aura.Models;
 using Aura.Utils;
-using Aura.Models;
 using Aura.Utils.Handlers;
 using Aura.Utils.Logger;
+using System;
+using System.Windows;
 
 namespace Aura
 {
     public partial class App : Application
     {
-        public static Window MainWindow { get; private set; }
         private static readonly ILogger Logger = AppLogger.GetLoggerForCurrentClass();
 
-        public App()
+        [STAThread]
+        public static void Main(string[] args)
         {
-            this.InitializeComponent();
-        }
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-        protected override void OnLaunched(LaunchActivatedEventArgs args)
-        {
-            string[] cmdArgs = Environment.GetCommandLineArgs();
-            
-            if (cmdArgs.Length > 1)
+            if (args.Length > 0)
             {
-                string[] appArgs = new string[cmdArgs.Length - 1];
-                Array.Copy(cmdArgs, 1, appArgs, 0, appArgs.Length);
-                
-                HandleCommandLine(appArgs);
-                return;
-            }
+                Logger.Info("Starting app with command line arguments: {0}", string.Join(", ", args));
 
-            MainWindow = new SettingsWindow();
-            MainWindow.Activate();
-        }
-        
-        private void HandleCommandLine(string[] args)
-        {
-            Logger.Info("Starting app with command line arguments: {0}", string.Join(", ", args));
+                AutoFileSaver<SettingsModel> autoFileSaver = new AutoFileSaver<SettingsModel>("settings.xml", true);
+                AppearanceHandler handler = new AppearanceHandler(autoFileSaver.Model);
 
-            AutoFileSaver<SettingsModel> autoFileSaver = new AutoFileSaver<SettingsModel>("settings.xml", true);
-            AppearanceHandler handler = new AppearanceHandler(autoFileSaver.Model);
-
-            foreach (string arg in args)
-            {
-                switch (arg.ToLowerInvariant())
+                foreach (string arg in args)
                 {
-                    case "/light":
-                        handler.SwitchToLightTheme();
-                        break;
-
-                    case "/dark":
-                        handler.SwitchToDarkTheme();
-                        break;
-
-                    case "/change":
-                        DateTime now = DateTime.Now;
-
-                        DateTime t1 = DateTime.Today.AddHours(autoFileSaver.Model.LightThemeTime.Hour).AddMinutes(autoFileSaver.Model.LightThemeTime.Minute);
-                        DateTime t2 = DateTime.Today.AddHours(autoFileSaver.Model.DarkThemeTime.Hour).AddMinutes(autoFileSaver.Model.DarkThemeTime.Minute);
-
-                        if (now > t1 && now < t2)
-                        {
+                    switch (arg)
+                    {
+                        case "/light":
                             handler.SwitchToLightTheme();
-                        }
-                        else
-                        {
+                            break;
+
+                        case "/dark":
                             handler.SwitchToDarkTheme();
-                        }
+                            break;
 
-                        break;
+                        case "/change":
+                            DateTime now = DateTime.Now;
 
-                    case "/update":
-                        AutoUpdater autoUpdater = new AutoUpdater(true, true);
-                        autoUpdater.CheckForUpdates(true).Wait();
-                        break;
+                            DateTime t1 = DateTime.Today.AddHours(autoFileSaver.Model.LightThemeTime.Hour).AddMinutes(autoFileSaver.Model.LightThemeTime.Minute);
+                            DateTime t2 = DateTime.Today.AddHours(autoFileSaver.Model.DarkThemeTime.Hour).AddMinutes(autoFileSaver.Model.DarkThemeTime.Minute);
 
-                    case "/clean":
-                        TaskSchedulerHandler.DeleteAllTasks();
-                        break;
+                            if (now > t1 && now < t2)
+                            {
+                                handler.SwitchToLightTheme();
+                            }
+                            else
+                            {
+                                handler.SwitchToDarkTheme();
+                            }
 
-                    default:
-                        Logger.Error("Command line argument is not accepted: {0}", arg);
-                        break;
+                            break;
+
+                        case "/update":
+                            AutoUpdater autoUpdater = new AutoUpdater(true, true);
+                            autoUpdater.CheckForUpdates(true).Wait();
+                            break;
+
+                        case "/clean":
+                            TaskSchedulerHandler.DeleteAllTasks();
+                            break;
+
+                        default:
+                            Logger.Error("Command line argument is not accepted: {0}", arg);
+                            break;
+                    }
                 }
             }
-            
-            Environment.Exit(0);
+            else
+            {
+                App app = new App();
+                app.InitializeComponent();
+                app.Run();
+            }
+        }
+
+        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            if (e.ExceptionObject is Exception ex)
+            {
+                Logger.Exception(ex);
+            }
+        }
+
+        private void Application_Startup(object sender, StartupEventArgs e)
+        {
+            RegistryHandler.WatchAppTheme(theme =>
+            {
+                if (theme == WindowsTheme.Light)
+                {
+                    Resources.MergedDictionaries[0].Source = new Uri("Theme/Metro/Metro.MSControls.Core.Implicit.xaml", UriKind.Relative);
+                }
+                else
+                {
+                    Resources.MergedDictionaries[0].Source = new Uri("Theme/MetroDark/MetroDark.MSControls.Core.Implicit.xaml", UriKind.Relative);
+                }
+            });
         }
     }
 }
-

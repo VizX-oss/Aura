@@ -1,19 +1,19 @@
 ﻿using Aura.Utils;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
+using System.Windows;
 
 namespace Aura.Windows
 {
-    public partial class UpdateDialog : ContentDialog
+    public partial class UpdateWindow : Window
     {
         public AutoUpdater AutoUpdater { get; private set; }
 
-        public UpdateDialog(AutoUpdater autoUpdater)
+        public UpdateWindow(AutoUpdater autoUpdater)
         {
             InitializeComponent();
 
             AutoUpdater = autoUpdater;
-            this.DataContext = autoUpdater.Model;
+
+            DataContext = autoUpdater.Model;
 
             if (autoUpdater.Model.Status == Models.UpdateStatus.None)
             {
@@ -37,4 +37,3 @@ namespace Aura.Windows
         }
     }
 }
-

@@ -1,8 +1,9 @@
-using Aura.Utils.Logger;
+﻿using Aura.Utils.Logger;
 using Microsoft.Win32.TaskScheduler;
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Security.Principal;
 
 namespace Aura.Utils.Handlers
@@ -79,7 +80,7 @@ namespace Aura.Utils.Handlers
 
         public static void UpdateAllTasks(DateTime lightThemeTime, DateTime darkThemeTime)
         {
-            string path = Environment.ProcessPath;
+            string path = Assembly.GetExecutingAssembly().Location;
 
             DateTime lightTime = DateTime.Today.AddHours(lightThemeTime.Hour).AddMinutes(lightThemeTime.Minute);
             DateTime darkTime = DateTime.Today.AddHours(darkThemeTime.Hour).AddMinutes(darkThemeTime.Minute);
@@ -97,7 +98,7 @@ namespace Aura.Utils.Handlers
             {
                 Logger.Error(ex.Message);
 
-                throw;
+                throw ex;
             }
         }
 
@@ -118,9 +119,8 @@ namespace Aura.Utils.Handlers
             {
                 Logger.Error(ex.Message);
 
-                throw;
+                throw ex;
             }
         }
     }
 }
-
