@@ -1,0 +1,27 @@
+﻿<ContentDialog
+    x:Class="Aura.Windows.AboutDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="About Aura"
+    CloseButtonText="Close"
+    DefaultButton="Close">
+
+    <StackPanel Spacing="12" Margin="0,10,0,0">
+        <TextBlock Text="Aura Theme Changer" Style="{ThemeResource SubtitleTextBlockStyle}" />
+        
+        <TextBlock Style="{ThemeResource BodyTextBlockStyle}">
+            Version <Run x:Name="VersionText" />
+        </TextBlock>
+        
+        <Button Content="Check for updates" Click="ButtonCheck_Click" Margin="0,8,0,8" />
+        
+        <TextBlock Style="{ThemeResource CaptionTextBlockStyle}">
+            Last check: <Run x:Name="LastCheckText" />
+        </TextBlock>
+
+        <HyperlinkButton Content="Creator GitHub Page" NavigateUri="https://github.com/VizXtreme" Padding="0" Margin="0,8,0,0" />
+        <HyperlinkButton Content="GitHub Public Repository" NavigateUri="https://github.com/VizXtreme/Aura" Padding="0" />
+        <HyperlinkButton Content="Suggestions and Issues" NavigateUri="https://github.com/VizXtreme/Aura/issues" Padding="0" />
+    </StackPanel>
+</ContentDialog>
+

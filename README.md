@@ -1,67 +1,71 @@
-# Luna
+# Aura
 
-A super lightweight automatic theme changer for Windows 10
+A modern, native Windows personalization utility that automates color theme and wallpaper switching. Aura has been rewritten from the ground up using **WinUI 3** and the **Windows App SDK** to deliver a premium, seamless experience on Windows 10 and 11.
 
-![](.repo/screenshot1.png)
-![](.repo/screenshot2.png)
+---
 
-![](.repo/screenshot3.png)
-![](.repo/screenshot4.png)
+## 🚀 The WinUI 3 Upgrade
 
-[![](.repo/download.png)](https://github.com/adrianmteo/Luna/releases/latest)
+Aura represents a complete modernization of the original utility. Key architectural changes include:
+* **Native Fluent Design**: Leverages the Windows UI Library (WinUI 3) to render controls matching Windows 11 design guidelines, support dark/light theme templates natively, and display rounded corners and drop shadows.
+* **Modern App Lifecycle**: Rewritten targeting **.NET 10.0** and the SDK-style build system.
+* **Non-Blocking Dialogs**: Migrated all modal views (About, Updates, and Alerts) to native `ContentDialog` panels with `XamlRoot` context, avoiding UI thread blocking.
+* **Streamlined Engine**: Removed legacy WPF controls and heavy third-party styling packages, resulting in a lightweight, responsive utility with a footprint of nearly zero background resources.
+* **Updated Networking**: Replaced deprecated WebClient references with a modern, stream-based `HttpClient` implementation featuring progress reporting.
 
-## Features
+---
 
-- 🎉 Change Window light/dark theme based on set times
-- 🎉 Change the Windows theme to a custom theme (see image below) and this includes changing:
-  - Background (image, slideshow or solid color)
-  - Colors
-  - Sounds
-  - Mouse cursor
-  - ![](.repo/theme1.png) ![](.repo/theme2.png)
-- 🎉 Change system or app color theme
-- 🎉 Change wallpaper for light/dark theme
+## ✨ Features
 
-## Install
+* 🌓 **Scheduled Transitions**: Automate switching between Windows Light and Dark modes at designated times.
+* 🎨 **Deep Customization**: Toggle individual elements:
+  * System theme settings
+  * Application theme settings
+  * Specific desktop wallpapers for light and dark modes
+* 📄 **Windows Theme Support**: Apply custom Windows `.theme` files directly during transitions.
+* 🛡️ **Zero Background Footprint**: Instead of running a persistent background process, Aura registers lightweight daily task actions in the Windows Task Scheduler.
+* 💻 **Command Line Support**: Run transition events directly via CLI commands.
 
-You can download and install the latest release from [here](https://github.com/adrianmteo/Luna/releases/latest).
+---
 
-**Note:** Windows SmartScreen might show you this warning screen. This is because the setup file is not being signed but the app is 100% safe to be run.
+## 🛠️ Installation
 
-![](.repo/smartscreen.png)
+1. Download the latest release from the [Releases](https://github.com/VizXtreme/Aura/releases/latest) page.
+2. Run the installer and configure your schedule.
+3. *Note: Since the installer is self-signed, Windows Defender SmartScreen may display a warning on first run. You can safely proceed.*
 
-## Description
+---
 
-I've built this app in my spare time to resolve my frustration with Windows 10 for not having automatic dark theme switcher. This may be included in the next releases of Windows 10 but for now here is Luna!
+## 💻 Command Line Interface
 
-This is a super lightweight app built using C# and WPF technologies. It creates task schedules for light/dark theme times. There are no running processes in the background and there is not need to start when Windows starts.
+Aura supports direct command executions for system scripts or custom automation:
 
-3<sup>rd</sup> party libraries used:
+| Parameter | Action |
+| --- | --- |
+| `/light` | Forces transition to the configured light theme settings |
+| `/dark` | Forces transition to the configured dark theme settings |
+| `/change` | Triggers a transition check based on the current system clock time |
+| `/update` | Silently queries the releases API and initiates updates |
+| `/clean` | Cleans up and deletes all scheduled tasks registered by Aura |
 
-- [Infragistics Metro Light and Dark Theme for WPF](https://www.infragistics.com/community/blogs/b/blagunas/posts/free-metro-light-and-dark-themes-for-wpf-and-silverlight-microsoft-controls)
-- [TaskScheduler](https://github.com/dahall/taskscheduler)
-- [Extended WPF Toolkit](https://github.com/xceedsoftware/wpftoolkit)
-- ThemeTool.exe - a Windows internal theme testing program used to change the Windows theme
+---
 
-## Command line parameters
+## 📦 Building Aura
 
-| Parameter | Description                                             |
-| --------- | ------------------------------------------------------- |
-| `/light`  | Switches to the light theme based on the saved settings |
-| `/dark`   | Switches to the dark theme based on the saved settings  |
-| `/update` | Silently checks for an update and installs it           |
-| `/clean`  | Cleans all task schedules created by the app            |
+Aura targets the modern Windows App SDK. Ensure you have the .NET 10 SDK installed, then run:
 
-## Build
+```bash
+# Clone the repository
+git clone https://github.com/VizXtreme/Aura.git
 
-Clone and open the solution in Visual Studio. Right-click on the project and click `Restore NuGet Packages`.
+# Build the project in Release configuration
+dotnet build Aura.sln --configuration Release
+```
 
-If you want to build the `Release` configuration and generate the setup executable (which is done automatically by building the `Release` configuration) you need to download and install [Inno Setup](https://jrsoftware.org/isinfo.php). The output setup executable can be found under `.extra\Output`.
+---
 
-## Future plans
+## 🤝 Contributing
 
-As time passes I might add new features (or contributions) to complete an experience that Windows 10 doesn't have (yet).
+Contributions, issues, and feature suggestions are welcome! Feel free to open a pull request or report issues on the repository page.
 
-## Contributions
-
-To make this app better for everyone, feel free to contribute with ideas, bug reports or even better: pull requests :)
+Developed by [VizXtreme](https://github.com/VizXtreme).
