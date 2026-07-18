@@ -36,7 +36,7 @@
         <StackPanel Spacing="8" Visibility="{Binding Status, Converter={StaticResource UpdateStatusToVisibilityConverter}, ConverterParameter=Downloading}">
             <Grid>
                 <TextBlock Text="Downloading update..." Style="{ThemeResource BodyTextBlockStyle}" />
-                <TextBlock Text="{Binding Progress, Converter={StaticResource StringFormatConverter}, ConverterParameter='{0}%'}" HorizontalAlignment="Right" Style="{ThemeResource BodyTextBlockStyle}" />
+                <TextBlock Text="{Binding Progress, Converter={StaticResource StringFormatConverter}, ConverterParameter='{0}&#x25;'}" HorizontalAlignment="Right" Style="{ThemeResource BodyTextBlockStyle}" />
             </Grid>
             <ProgressBar Value="{Binding Progress}" Height="8" Maximum="100" />
         </StackPanel>

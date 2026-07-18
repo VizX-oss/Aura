@@ -9,13 +9,13 @@
     mc:Ignorable="d"
     Title="Aura">
 
-    <Window.Resources>
-        <utils:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-        <utils:ObjectComparatorToVisbility x:Key="ObjectComparatorToVisbility" />
-        <utils:DateTimeToTimeSpanConverter x:Key="DateTimeToTimeSpanConverter" />
-    </Window.Resources>
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.Resources>
+            <utils:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <utils:ObjectComparatorToVisbility x:Key="ObjectComparatorToVisbility" />
+            <utils:DateTimeToTimeSpanConverter x:Key="DateTimeToTimeSpanConverter" />
+        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
