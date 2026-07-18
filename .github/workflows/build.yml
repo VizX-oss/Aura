@@ -20,8 +20,8 @@ jobs:
         dotnet-version: '8.0.x'
 
     - name: Restore dependencies
-      run: dotnet restore Aura.sln
+      run: dotnet restore Aura.sln -p:Platform=x64
 
     - name: Build Aura
-      run: dotnet build Aura.sln --configuration Release --no-restore
+      run: dotnet build Aura.sln --configuration Release --no-restore -p:Platform=x64
 
