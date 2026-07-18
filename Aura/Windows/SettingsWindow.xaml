@@ -1,4 +1,4 @@
-﻿<Window
+<Window
     x:Class="Aura.Windows.SettingsWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -71,7 +71,7 @@
                     </StackPanel>
 
                     <!-- Custom Appearance Selection -->
-                    <StackPanel Spacing="8" Visibility="{Binding ChangeType, Converter={StaticResource ObjectComparatorToVisbility}, ConverterParameter={x:Static models:SettingsChangeType.Custom}}">
+                    <StackPanel Spacing="8" Visibility="{Binding ChangeType, Converter={StaticResource ObjectComparatorToVisbility}, ConverterParameter=Custom}">
                         <CheckBox Content="Change system theme" IsChecked="{Binding ChangeSystemTheme, Mode=TwoWay}" />
                         <CheckBox Content="Change app theme" IsChecked="{Binding ChangeAppTheme, Mode=TwoWay}" />
                         <CheckBox Content="Change wallpaper" IsChecked="{Binding ChangeWallpaper, Mode=TwoWay}" />
@@ -92,7 +92,7 @@
                     </StackPanel>
 
                     <!-- Theme file selection -->
-                    <StackPanel Spacing="8" Visibility="{Binding ChangeType, Converter={StaticResource ObjectComparatorToVisbility}, ConverterParameter={x:Static models:SettingsChangeType.Theme}}">
+                    <StackPanel Spacing="8" Visibility="{Binding ChangeType, Converter={StaticResource ObjectComparatorToVisbility}, ConverterParameter=Theme}">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <TextBlock Text="Light .theme file" Style="{ThemeResource CaptionTextBlockStyle}" VerticalAlignment="Center" />
                             <HyperlinkButton Content="Browse..." Click="BrowseThemeHyperlink_Click" Tag="LightThemePath" Padding="0" VerticalAlignment="Center" />
