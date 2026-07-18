@@ -23,5 +23,5 @@ jobs:
       run: dotnet restore Aura/Aura.csproj -p:Platform=x64
 
     - name: Build Aura
-      run: dotnet build Aura/Aura.csproj --configuration Release --no-restore -p:Platform=x64
+      run: dotnet build Aura/Aura.csproj --configuration Release --no-restore -p:Platform=x64 -v:detailed
 
