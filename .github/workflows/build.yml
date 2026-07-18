@@ -23,7 +23,7 @@ jobs:
       uses: microsoft/setup-msbuild@v2
 
     - name: Restore dependencies
-      run: msbuild Aura/Aura.csproj -t:restore -p:Platform=x64
+      run: dotnet restore Aura/Aura.csproj -p:Platform=x64
 
     - name: Build Aura
       run: msbuild Aura/Aura.csproj /p:Configuration=Release /p:Platform=x64 /v:detailed
