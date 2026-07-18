@@ -20,6 +20,9 @@ jobs:
       with:
         dotnet-version: '8.0.x'
 
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
     - name: Cache NuGet packages
       uses: actions/cache@v4
       with:
@@ -29,10 +32,10 @@ jobs:
           ${{ runner.os }}-nuget-
 
     - name: Restore dependencies
-      run: dotnet restore Aura/Aura.csproj -r win-x64
+      run: dotnet restore Aura/Aura.csproj -p:Platform=x64
 
     - name: Build
-      run: dotnet build Aura/Aura.csproj -c Release -r win-x64 --no-restore
+      run: msbuild Aura/Aura.csproj /p:Configuration=Release /p:Platform=x64 /p:RestorePackages=false /m
 
     - name: Publish
       run: dotnet publish Aura/Aura.csproj -c Release -r win-x64 --no-build -o ./publish
