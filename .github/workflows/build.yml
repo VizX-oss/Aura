@@ -1,0 +1,45 @@
+name: Build Aura App
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Restore dependencies
+      run: dotnet restore Aura/Aura.csproj -r win-x64
+
+    - name: Build
+      run: dotnet build Aura/Aura.csproj -c Release -r win-x64 --no-restore
+
+    - name: Publish
+      run: dotnet publish Aura/Aura.csproj -c Release -r win-x64 --no-build -o ./publish
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: Aura-win-x64
+        path: ./publish/
+        retention-days: 30
