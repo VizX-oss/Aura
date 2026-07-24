@@ -5,24 +5,32 @@ on:
     branches: [ "master", "main" ]
   pull_request:
     branches: [ "master", "main" ]
+  workflow_dispatch:
 
 jobs:
   build:
-
     runs-on: windows-latest
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1.1
+      uses: microsoft/setup-msbuild@v2
 
     - name: Setup NuGet
-      uses: NuGet/setup-nuget@v1.2.0
+      uses: NuGet/setup-nuget@v2
 
     - name: Restore NuGet packages
       run: nuget restore Aura.sln
 
     - name: Build Solution
-      run: msbuild Aura.sln /p:Configuration=Release /p:Platform="Any CPU"
+      run: msbuild Aura.sln /p:Configuration=Release /p:Platform="Any CPU" /m
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: Aura-Release-Build
+        path: |
+          Aura/bin/Release/
+        retention-days: 30

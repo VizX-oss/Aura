@@ -1,4 +1,4 @@
-﻿using Aura.Models;
+using Aura.Models;
 using Aura.Properties;
 using Aura.Utils;
 using Aura.Utils.Handlers;
@@ -58,7 +58,7 @@ namespace Aura.Windows
                         try
                         {
                             Process process = new Process();
-                            process.StartInfo.FileName = Assembly.GetExecutingAssembly().Location;
+                            process.StartInfo.FileName = Process.GetCurrentProcess().MainModule.FileName;
                             process.StartInfo.Verb = "runas";
                             process.Start();
 
@@ -85,7 +85,7 @@ namespace Aura.Windows
 
             if (properties.Contains(e.PropertyName))
             {
-                Content.IsEnabled = false;
+                ContentPanel.IsEnabled = false;
 
                 try
                 {
@@ -104,7 +104,7 @@ namespace Aura.Windows
                 }
                 finally
                 {
-                    Content.IsEnabled = true;
+                    ContentPanel.IsEnabled = true;
                 }
             }
         }
@@ -115,18 +115,21 @@ namespace Aura.Windows
 
             if (e.PropertyName == "Status" && model.Status == UpdateStatus.NewUpdate)
             {
-                WindowCollection windows = Application.Current.Windows;
-
-                for (int i = 0; i < windows.Count; i++)
+                Dispatcher.Invoke(() =>
                 {
-                    if (windows[i] is UpdateWindow)
-                    {
-                        return;
-                    }
-                }
+                    WindowCollection windows = Application.Current.Windows;
 
-                UpdateWindow window = new UpdateWindow(_autoUpdater) { Owner = this };
-                window.ShowDialog();
+                    for (int i = 0; i < windows.Count; i++)
+                    {
+                        if (windows[i] is UpdateWindow)
+                        {
+                            return;
+                        }
+                    }
+
+                    UpdateWindow window = new UpdateWindow(_autoUpdater) { Owner = this };
+                    window.ShowDialog();
+                });
             }
         }
 

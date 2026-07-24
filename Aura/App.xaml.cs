@@ -1,4 +1,4 @@
-﻿using Aura.Models;
+using Aura.Models;
 using Aura.Utils;
 using Aura.Utils.Handlers;
 using Aura.Utils.Logger;
@@ -87,14 +87,17 @@ namespace Aura
         {
             RegistryHandler.WatchAppTheme(theme =>
             {
-                if (theme == WindowsTheme.Light)
+                Dispatcher.Invoke(() =>
                 {
-                    Resources.MergedDictionaries[0].Source = new Uri("Theme/Metro/Metro.MSControls.Core.Implicit.xaml", UriKind.Relative);
-                }
-                else
-                {
-                    Resources.MergedDictionaries[0].Source = new Uri("Theme/MetroDark/MetroDark.MSControls.Core.Implicit.xaml", UriKind.Relative);
-                }
+                    if (theme == WindowsTheme.Light)
+                    {
+                        Resources.MergedDictionaries[0].Source = new Uri("Theme/Metro/Metro.MSControls.Core.Implicit.xaml", UriKind.Relative);
+                    }
+                    else
+                    {
+                        Resources.MergedDictionaries[0].Source = new Uri("Theme/MetroDark/MetroDark.MSControls.Core.Implicit.xaml", UriKind.Relative);
+                    }
+                });
             });
         }
     }
