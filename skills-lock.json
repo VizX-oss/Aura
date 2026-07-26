@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "winui3-migration-guide": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/winui3-migration-guide/SKILL.md",
+      "computedHash": "117001488fd02eb4cd9e4e6c24ba7270e729e2717c81c3387290ed624865be39"
+    }
+  }
+}
